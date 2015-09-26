@@ -1,5 +1,5 @@
-// Blink the built-in LED connected to Digital Pin 13
-int led = 13;
+// Blink an LED connected to Digital Pin 8 via a 330 Ohm resistor
+int led = 8;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
