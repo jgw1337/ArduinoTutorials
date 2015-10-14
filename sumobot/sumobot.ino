@@ -6,66 +6,34 @@
  * Trig to Arduino pin 8
  */
 
-#define eyes1_vcc   2
-#define eyes1_trig  3
-#define eyes1_echo  4
-#define eyes1_gnd   5
+#define eyes1_echo 7
+#define eyes1_trig 8
+long duration, inches, cm;
 
 void setup() {
   Serial.begin (9600);
-  pinMode(eyes1_vcc, OUTPUT);
-  pinMode(eyes1_gnd, OUTPUT);
+  pinMode(eyes1_trig, OUTPUT);
+  pinMode(eyes1_echo, INPUT);
 }
 
-void loop()
-{
-digitalWrite(eyes1_vcc, HIGH);
-// establish variables for duration of the ping,
-// and the distance result in inches and centimeters:
-long duration, inches, cm;
+void loop() {
+  digitalWrite(eyes1_trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(eyes1_trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(eyes1_trig, LOW);
+  duration = pulseIn(eyes1_echo, HIGH);
+  inches = duration / 74 / 2;
+  cm = (duration/2) / 29.1;
 
-// The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
-// Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-pinMode(eyes1_trig, OUTPUT);
-digitalWrite(eyes1_trig, LOW);
-delayMicroseconds(2);
-digitalWrite(eyes1_trig, HIGH);
-delayMicroseconds(5);
-digitalWrite(eyes1_trig, LOW);
-
-// The same pin is used to read the signal from the PING))): a HIGH
-// pulse whose duration is the time (in microseconds) from the sending
-// of the ping to the reception of its echo off of an object.
-pinMode(eyes1_echo,INPUT);
-duration = pulseIn(eyes1_echo, HIGH);
-
-// convert the time into a distance
-inches = microsecondsToInches(duration);
-cm = microsecondsToCentimeters(duration);
-
-Serial.print(inches);
-Serial.print(" in, ");
-Serial.print(cm);
-Serial.print(" cm");
-Serial.println();
-
-delay(100);
-}
-
-long microsecondsToInches(long microseconds)
-{
-// According to Parallax's datasheet for the PING))), there are
-// 73.746 microseconds per inch (i.e. sound travels at 1130 feet per
-// second). This gives the distance travelled by the ping, outbound
-// and return, so we divide by 2 to get the distance of the obstacle.
-// See: http://www.parallax.com/dl/docs/prod/acc/28015-PI...
-return microseconds / 74 / 2;
-}
-
-long microsecondsToCentimeters(long microseconds)
-{
-// The speed of sound is 340 m/s or 29 microseconds per centimeter.
-// The ping travels out and back, so to find the distance of the
-// object we take half of the distance travelled.
-return microseconds / 29 / 2;
+  // Five feet is the max range
+  if (inches / 12 <= 5){
+    Serial.print(inches);
+    Serial.print(" in, ");
+    Serial.print(cm);
+    Serial.println(" cm");
+  } else {
+    Serial.println("Out of range");
+  }
+  delay(100);
 }
