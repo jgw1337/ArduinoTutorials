@@ -6,34 +6,45 @@
  * Trig to Arduino pin 8
  */
 
-#define eyes1_echo 7
-#define eyes1_trig 8
+#define right_eye_echo 7
+#define right_eye_trig 8
+#define max_sight_in_feet 5
 long duration, inches, cm;
 
 void setup() {
   Serial.begin (9600);
-  pinMode(eyes1_trig, OUTPUT);
-  pinMode(eyes1_echo, INPUT);
+  init_right_eye();
 }
 
 void loop() {
-  digitalWrite(eyes1_trig, LOW);
+  see_right_eye();
+  delay(100);
+}
+
+void init_right_eye() {
+  pinMode(right_eye_trig, OUTPUT);
+  pinMode(right_eye_echo, INPUT);
+}
+
+void see_right_eye() {
+  digitalWrite(right_eye_trig, LOW);
   delayMicroseconds(2);
-  digitalWrite(eyes1_trig, HIGH);
+  digitalWrite(right_eye_trig, HIGH);
   delayMicroseconds(10);
-  digitalWrite(eyes1_trig, LOW);
-  duration = pulseIn(eyes1_echo, HIGH);
+  digitalWrite(right_eye_trig, LOW);
+  duration = pulseIn(right_eye_echo, HIGH);
   inches = duration / 74 / 2;
   cm = (duration/2) / 29.1;
 
-  // Five feet is the max range
-  if (inches / 12 <= 5){
-    Serial.print(inches);
-    Serial.print(" in, ");
-    Serial.print(cm);
-    Serial.println(" cm");
+  // Three feet is the max range
+  Serial.print("Right eye : ");
+  Serial.print(inches);
+  Serial.print(" in, ");
+  Serial.print(cm);
+  Serial.print(" cm");
+  if (inches / 12 <= max_sight_in_feet){
   } else {
-    Serial.println("Out of range");
+    Serial.print(". Out of range");
   }
-  delay(100);
+  Serial.println("");
 }
