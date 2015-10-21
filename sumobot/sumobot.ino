@@ -13,9 +13,21 @@
 #define max_sight_in_feet  3
 long duration, inches, cm;
 
+/**
+ * L298N Motor driver
+ */
+
+#define motor_left_in1     4
+#define motor_left_in2     5
+#define motor_left_pwm     9
+#define motor_right_in1    6
+#define motor_right_in2    7
+#define motor_right_pwm   10
+
 void setup() {
   Serial.begin (9600);
   init_eyes();
+  init_feet();
 }
 
 void loop() {
@@ -27,7 +39,7 @@ void loop() {
 
 
 /**
- * Supplemental Functions
+ * Eye Functions
  */
 void init_eyes() {
   pinMode(left_eye_trig, OUTPUT);
@@ -75,3 +87,70 @@ void see_eye(String dir) {
 
   Serial.print(strDisplay + padding);
 }
+
+
+/**
+ * Motor Functions
+ */
+void init_feet() {
+  pinMode(motor_left_in1, OUTPUT);
+  pinMode(motor_left_in2, OUTPUT);
+  pinMode(motor_left_pwm, OUTPUT);
+  pinMode(motor_right_in1, OUTPUT);
+  pinMode(motor_right_in2, OUTPUT);
+  pinMode(motor_right_pwm, OUTPUT);
+}
+
+void spin(String dir) {
+  int motor_fwd_in1;
+  int motor_fwd_in2;
+  int motor_fwd_pwm;
+  int motor_bkwd_in1;
+  int motor_bkwd_in2;
+  int motor_bkwd_pwm;
+
+  if ( dir == "right") {
+    dir = "Right";
+    motor_fwd_in1 = motor_left_in1;
+    motor_fwd_in2 = motor_left_in2;
+    motor_fwd_pwm = motor_left_pwm;
+    motor_bkwd_in1 = motor_right_in1;
+    motor_bkwd_in2 = motor_right_in2;
+    motor_bkwd_pwm = motor_right_pwm;
+  } else {
+    dir = "Left";
+    motor_fwd_in1 = motor_right_in1;
+    motor_fwd_in2 = motor_right_in2;
+    motor_fwd_pwm = motor_right_pwm;
+    motor_bkwd_in1 = motor_left_in1;
+    motor_bkwd_in2 = motor_left_in2;
+    motor_bkwd_pwm = motor_left_pwm;
+  }
+
+  // Step forward
+  digitalWrite(motor_fwd_in1, HIGH);
+  digitalWrite(motor_fwd_in2, LOW);
+  analogWrite(motor_fwd_pwm, 255);
+
+  // Step backward
+  digitalWrite(motor_bkwd_in1, LOW);
+  digitalWrite(motor_bkwd_in2, HIGH);
+  analogWrite(motor_bkwd_pwm, 255);
+}
+
+void all_stop() {
+  digitalWrite(motor_left_in1, LOW);
+  digitalWrite(motor_left_in2, LOW);
+  digitalWrite(motor_right_in1, LOW);
+  digitalWrite(motor_right_in2, LOW);
+}
+
+void ramming_speed() {
+  digitalWrite(motor_left_in1, HIGH);
+  digitalWrite(motor_left_in2, LOW);
+  analogWrite(motor_left_pwm, 255);
+  digitalWrite(motor_right_in1, HIGH);
+  digitalWrite(motor_right_in2, LOW);
+  analogWrite(motor_right_pwm, 255);
+}
+
