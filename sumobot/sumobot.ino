@@ -10,7 +10,11 @@
 #define left_eye_trig     12
 #define right_eye_echo     2
 #define right_eye_trig     3
-#define max_sight_in_feet  3
+#define bulls_eye_echo    A0
+#define bulls_eye_trig    A1
+
+#define max_sight_in_feet      3
+#define ramming_sight_in_feet  1
 long duration, inches, cm;
 
 /**
@@ -31,23 +35,20 @@ void setup() {
 }
 
 void loop() {
-  if ( isInRange("right_eye") ) {
-    all_stop();
-  } else {
-    go("right", 150);
-  }
-
-  if ( isInRange("left_eye") ) {
-    go("backward", 150);
-  }
-
-/*
-  if ( isInRange("ramming_eye") ) {
+  if ( isInRange("bulls_eye", ramming_sight_in_feet) ) {
     ramming_speed();
+
   } else {
-    all_stop();
+    if ( isInRange("right_eye", max_sight_in_feet) ) {
+      all_stop();
+    } else {
+      go("right", 150);
+    }
+
+    if ( isInRange("left_eye", max_sight_in_feet) ) {
+      go("backward", 150);
+    }
   }
-*/
 
   Serial.println();
   delay(10);
@@ -57,7 +58,7 @@ void loop() {
 /**
  * Eye Functions
  */
-boolean isInRange(String eye) {
+boolean isInRange(String eye, int distance_in_feet) {
   boolean object_detected = false;
   int eye_echo;
   int eye_trig;
@@ -71,7 +72,8 @@ boolean isInRange(String eye) {
     eye_echo = left_eye_echo;
     eye_trig = left_eye_trig;
   } else {
-    // ramming eye
+    eye_echo = bulls_eye_echo;
+    eye_trig = bulls_eye_trig;
   }
 
   digitalWrite(eye_trig, LOW);
@@ -84,7 +86,7 @@ boolean isInRange(String eye) {
   cm = (duration/2) / 29.1;
 
   // Three feet is the max range
-  if (inches / 12 <= max_sight_in_feet){
+  if (inches / 12 <= distance_in_feet){
     object_detected = true;
   }
 
@@ -109,6 +111,8 @@ void init_eyes() {
   pinMode(left_eye_echo, INPUT);
   pinMode(right_eye_trig, OUTPUT);
   pinMode(right_eye_echo, INPUT);
+  pinMode(bulls_eye_trig, OUTPUT);
+  pinMode(bulls_eye_echo, INPUT);
 }
 
 
